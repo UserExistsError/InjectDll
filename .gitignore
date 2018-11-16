@@ -328,3 +328,6 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+InjectWow64toNative64.h
+InjectWow64toNative64d.h
