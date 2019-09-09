@@ -18,6 +18,7 @@
 // Loader shellcode from https ://github.com/UserExistsError/DllLoaderShellcode
 #include "loaders.h"
 
+const IMAGE_NT_HEADERS* GetNtHeader(const BYTE* image, const DWORD imageSize);
 BOOL ReadFileData(WCHAR *filename, BYTE **buff, DWORD *size);
 int GetCurrentProcessBits();
 int GetProcessBits(HANDLE);
@@ -84,13 +85,23 @@ int wmain(int argc, WCHAR *argv[])
 	}
 
 	// get remote process arch
-	int bits = GetProcessBits(hProc);
+	const int bits = GetProcessBits(hProc);
 	if (bits == 0) {
 		wprintf(L"Failed to get process architecture\n");
 		return 1;
 	}
 
-	wprintf(L"Injecting %s -> %s\n", GetCurrentProcessBits() == 32 ? L"Wow64" : L"x64", bits == 32 ? L"Wow64" : L"x64");
+	// ensure inject process is same arch as dll
+	const IMAGE_NT_HEADERS *ntHeader = GetNtHeader(image, imageSize);
+	if (ntHeader == NULL) {
+		wprintf(L"DLL does not have a valid PE header\n");
+		return 1;
+	}
+	if ((ntHeader->FileHeader.Machine == IMAGE_FILE_MACHINE_I386 && bits != 32) ||
+		(ntHeader->FileHeader.Machine == IMAGE_FILE_MACHINE_AMD64 && bits != 64)) {
+		wprintf(L"Inject process arch does not match DLL\n");
+		return 1;
+	}
 
 	// choose correct loader arch for remote process
 	BYTE *loader = NULL;
@@ -103,6 +114,8 @@ int wmain(int argc, WCHAR *argv[])
 		loaderSize = sizeof(loader_x64);
 		loader = (BYTE*)loader_x64;
 	}
+
+	wprintf(L"Injecting %s -> %s\n", GetCurrentProcessBits() == 32 ? L"Wow64" : L"x64", bits == 32 ? L"Wow64" : L"x64");
 
 	// allocate remote memory for loader shellcode + dll
 	const size_t remoteShellcodeSize = loaderSize + imageSize;

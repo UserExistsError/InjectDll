@@ -23,13 +23,13 @@
     <ClCompile Include="InjectDll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="readfile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="process.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="wow64.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fileutils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
