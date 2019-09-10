@@ -79,12 +79,12 @@ int wmain(int argc, WCHAR *argv[])
 	char buff[256+1];
 	sprintf_s(buff, 256,
 		"#pragma once\r\n"
-		"const unsigned char %S[] = {\r\n",
+		"const unsigned char %S[] = {",
 		argv[2]);
 	WriteFileData(hFile, (BYTE*)buff, lstrlenA(buff));
 	for (size_t i = 0; i < codeSection->Misc.VirtualSize; i++) {
-		if ((i % 16 == 0) && i)
-			WriteFileData(hFile, (BYTE*)"\r\n", 2);
+		if (i % 16 == 0)
+			WriteFileData(hFile, (BYTE*)"\r\n    ", 6);
 		sprintf_s(buff, 256, "0x%02x, ", text[i]);
 		WriteFileData(hFile, (BYTE*)buff, lstrlenA(buff));
 	}
